@@ -36,8 +36,11 @@ function Titulo(props) {
 
 export default function PaginaInicial() {
   //const username = 'leandropetrucirodrigues';
-  const [username,setUsername] = React.useState('leandropetrucirodrigues');
+  const [username,setUsername] = React.useState('');
+  const [nameBottomImage,setBottomImage] = React.useState('GitHub');
+  const [semImagem,setImage] = React.useState('https://avatars.githubusercontent.com/u/9919?s=280&v=4')
   const roteamento = useRouter();
+  
   
   return (
     <>
@@ -84,28 +87,25 @@ export default function PaginaInicial() {
               {appConfig.name}
             </Text>
 
-			{/* <input 
-				type="text"
-				value={username}
-				onChange={function (event){
-					console.log('usuario digitou',event.target.value)
-					//onde ta o valor
-					const valor = event.target.value;
-					// trocar o valor da variavel
-					setUsername(valor);
-					
-				}}
-			/> */}
+			
 
             <TextField
 				value={username}
+				placeholder='Digite o nome do usuário no GitHub'
 				onChange={function (event){
 					// console.log('usuario digitou',event.target.value)
 					//onde ta o valor
 					const valor = event.target.value;
 					// trocar o valor da variavel
 					setUsername(valor);
-					
+					setBottomImage(valor)
+
+					if (valor.length > 2) {
+						setImage(`https://github.com/${valor}.png`);	
+					}else{
+						setBottomImage(`Github`)
+						setImage('https://avatars.githubusercontent.com/u/9919?s=280&v=4')
+					}
 				}}
 				fullWidth
 				textFieldColors={{
@@ -118,16 +118,16 @@ export default function PaginaInicial() {
               }}
             />
             <Button
-              type='submit'
-              label='Entrar'
-              fullWidth
-              buttonColors={{
-                contrastColor: appConfig.theme.colors.novas[999],
-                mainColor: appConfig.theme.colors.novas[300],
-                mainColorLight: appConfig.theme.colors.novas[100],
-                mainColorStrong: appConfig.theme.colors.novas[700],
-              }}
-            />
+				type='submit'
+				label='Entrar'
+				fullWidth
+				buttonColors={{
+					contrastColor: appConfig.theme.colors.novas[999],
+					mainColor: appConfig.theme.colors.novas[300],
+					mainColorLight: appConfig.theme.colors.novas[100],
+					mainColorStrong: appConfig.theme.colors.novas[700],
+				}}	
+			/>
           </Box>
           {/* Formulário */}
 
@@ -153,7 +153,7 @@ export default function PaginaInicial() {
                 borderRadius: '20px',
                 marginBottom: '16px',
               }}
-              src={`https://github.com/${username}.png`}
+              src={semImagem}
             />
             <Text
               variant="body4"
@@ -164,7 +164,7 @@ export default function PaginaInicial() {
                 borderRadius: '5px'
               }}
             >
-              {username}
+            {nameBottomImage}
             </Text>
           </Box>
           {/* Photo Area */}
