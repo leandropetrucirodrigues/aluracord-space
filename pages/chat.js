@@ -1,27 +1,61 @@
 import { Box, Text, TextField, Image, Button } from '@skynexui/components';
 import React from 'react';
 import appConfig from '../config.json';
+import { createClient } from '@supabase/supabase-js'
+
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0Mzg1MDg0OCwiZXhwIjoxOTU5NDI2ODQ4fQ.Vroy2JsI79TymHvOYbKXlgwPLKdO5c1jQzWr-sGz1Zs';
+const SUPABASE_URL = 'https://wpqwubahmsfevibvedtk.supabase.co';
+const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+
+
 
 export default function ChatPage() {
 	const [mensagem, setMensagem] = React.useState('');
 	const [listaDeMensagens, setListaDeMensagens] = React.useState([]);
+
+	React.useEffect(() =>{
+		supabaseClient
+			.from('mensagens')
+			.select('*')
+			.order('id',{ascending:false})
+			.then(({ data }) => {
+				console.log('Dados da Consulta', data);
+				setListaDeMensagens(data)
+			});
+
+	}, []);
+	
 	// Sua lógica vai aqui
 
 	// ./Sua lógica vai aqui
 	function handleNovaMensagem(novaMensagem) {
 		const mensagem = {
-			id: listaDeMensagens.length + 1,
-			de: 'Leandro',
+			//id: listaDeMensagens.length + 1,
+			de: 'leandropetrucirodrigues',
 			texto: novaMensagem,
-		}
+		};
+		supabaseClient
+			.from('mensagens')
+			.insert([
+				mensagem
+			])
+			.then(({data}) =>{
+				console.log('criando msg',data)
+				setListaDeMensagens([
+					data[0],
+					...listaDeMensagens,
+				])
 
-		setListaDeMensagens([
+				
+			});
 
-			mensagem,
-			...listaDeMensagens,
-		])
+		
 		setMensagem('');
 	}
+
+
+
 
 
 	return (
@@ -99,7 +133,7 @@ export default function ChatPage() {
 							placeholder="Insira sua mensagem aqui..."
 							type="textarea"
 							styleSheet={{
-								width: '100%',
+								width: '95%',
 								border: '0',
 								resize: 'none',
 								borderRadius: '10px',
@@ -108,6 +142,27 @@ export default function ChatPage() {
 								marginRight: '12px',
 								color: appConfig.theme.colors.novas[999],
 								textColor: appConfig.theme.colors.novas[999],
+								height: '80px'
+							}}
+						/>
+						<Button
+							variant='primary'
+							label='Enviar'
+							size='lg'
+							buttonColors={{
+								contrastColor: appConfig.theme.colors.novas[999],
+								mainColor: appConfig.theme.colors.novas['000'],
+								mainColorLight: appConfig.theme.colors.novas[400],
+								mainColorStrong: appConfig.theme.colors.novas[200],
+							}}
+							styleSheet={{
+								height: '50%',
+								width: '10%',
+							}}
+							onClick={(event) => {
+								event.preventDefault();
+								handleNovaMensagem(mensagem);
+
 							}}
 						/>
 					</Box>
@@ -151,12 +206,13 @@ function Header() {
 
 function MessageList(props) {
 	console.log(props);
+
 	return (
+
 		<Box
 			tag="ul"
 			styleSheet={{
 				overflowY: 'scroll',
-				scrollbar: 'none',
 				display: 'flex',
 				flexDirection: 'column-reverse',
 				flex: 1,
@@ -166,51 +222,83 @@ function MessageList(props) {
 		>
 			{props.mensagens.map((mensagem) => {
 				return (
-					<Text
-						key={mensagem.id}
-						tag="li"
+					<Box
 						styleSheet={{
-							borderRadius: '5px',
-							padding: '6px',
-							marginBottom: '12px',
-							hover: {
-								backgroundColor: appConfig.theme.colors.neutrals[700],
-							}
+							display: 'flex'
 						}}
 					>
-						<Box
+						<Text
+							key={mensagem.id}
+							tag="li"
 							styleSheet={{
-								marginBottom: '8px',
-							}}
+								borderRadius: '5px',
+								padding: '6px',
+								marginBottom: '12px',
+									marginRight: '10px',
+									hover: {
+										backgroundColor: appConfig.theme.colors.novas[300],
+									},
+									width: '99%'
+								}}
+
 						>
-							<Image
+							<Box
 								styleSheet={{
-									width: '20px',
-									height: '20px',
-									borderRadius: '50%',
-									display: 'inline-block',
-									marginRight: '8px',
+									marginBottom: '8px',
+									display: 'flex',
+
 								}}
-								src={`https://github.com/leandropetrucirodrigues.png`}
-							/>
-							<Text tag="strong">
-								{mensagem.de}
-							</Text>
-							<Text
-								styleSheet={{
-									fontSize: '10px',
-									marginLeft: '8px',
-									color: appConfig.theme.colors.neutrals[300],
-								}}
-								tag="span"
 							>
-								{(new Date().toLocaleDateString())}
-							</Text>
-						</Box>
-						{mensagem.texto}
-					</Text>
+								<Image
+									styleSheet={{
+										width: '20px',
+										height: '20px',
+										borderRadius: '50%',
+										display: 'inline-block',
+										marginRight: '8px',
+
+									}}
+									src={`https://github.com/${mensagem.de}.png`}
+								/>
+								<Text tag="strong">
+									{mensagem.de}
+								</Text>
+								<Text
+									styleSheet={{
+										fontSize: '10px',
+										marginLeft: '8px',
+										color: 'black',
+									}}
+									tag="span"
+								>
+									{(new Date().toLocaleDateString())}
+								</Text>
+
+							</Box>
+
+							{mensagem.texto}
+						</Text>
+						<Button
+							variant='primary'
+							label=''
+							iconName='trash'
+							buttonColors={{
+								contrastColor: appConfig.theme.colors.novas[999],
+								mainColor: appConfig.theme.colors.novas[400],
+								mainColorLight: appConfig.theme.colors.novas[200],
+								mainColorStrong: appConfig.theme.colors.novas[100],
+							}}
+
+
+						/>
+					</Box>
+
 				)
+
 			})}
+
 		</Box>
+
+
 	)
 }
